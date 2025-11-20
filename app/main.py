@@ -1,17 +1,34 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
+
 from app.models import URLRequest, URLResponse
-from app.hashing import generate_code
 from app.crud import get_long_url, create_short_url
+from app.database import SessionLocal
+
+
 
 app = FastAPI()
 
-
-#Post to create an short name and return it
-@app.post("/shorten", response_model=URLResponse)
-def shorten_url(request: URLRequest):
+#Dependency for DB Session
+def get_db():
+    db = SessionLocal()
     try:
-        short_code = create_short_url(request.owner_id, request.long_url, request.custom_alias, request.expires_at)
+        yield db
+    finally:
+        db.close()
+
+
+#POST to create an short name and return it
+@app.post("/shorten", response_model=URLResponse)
+def shorten_url(request: URLRequest, db: Session = Depends(get_db)):
+    try:
+        short_code = create_short_url(
+            db, 
+            request.long_url, 
+            request.custom_alias, 
+            request.expires_at,
+            request.owner_id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -24,9 +41,10 @@ def shorten_url(request: URLRequest):
 
 #Get to redirect to orginal url
 @app.get("/{short_code}")
-def redirect(short_code: str):
+def redirect(short_code: str, db: Session = Depends(get_db)):
     try:
-        long_url = get_long_url(short_code)
+        long_url = get_long_url(db, short_code)
     except ValueError as e:
         raise HTTPException(status_code=404,detail=str(e))
     return RedirectResponse(url=long_url)
+
