@@ -12,3 +12,4 @@ class ShortURL(Base):
     expires_at = Column(DateTime, nullable=True)
     click_count = Column(Integer, default=0)
     owner_id = Column(String, nullable=True)
+    last_accessed = Column(DateTime, nullable=True)

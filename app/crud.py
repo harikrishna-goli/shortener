@@ -3,6 +3,7 @@
 from sqlalchemy.orm import Session
 from app.schemas import ShortURL
 from app.hashing import generate_code
+from datetime import datetime
 
 
 
@@ -11,6 +12,7 @@ def get_long_url(db: Session, short_code: str) -> str:
     if not entry:
         raise ValueError("Short URL Not Found")
     entry.click_count += 1
+    entry.last_accessed = datetime.now()
     db.commit()
     return entry.long_url
 
