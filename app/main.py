@@ -35,6 +35,7 @@ def shorten_url(request: URLRequest, db: Session = Depends(get_db)):
 
     return URLResponse(
         short_url = f"http://127.0.0.1:8000/{short_code}",
+        short_code = short_code,
         expires_at = request.expires_at,
         owner_id = request.owner_id,
         message = "Short URL created successfully"
@@ -53,16 +54,17 @@ def redirect(short_code: str, db: Session = Depends(get_db)):
 @app.get("/stats/{short_code}")
 def status_page(short_code: str, db: Session = Depends(get_db)):
 
-    try:
-        table = db.query(ShortURL).filter_by(short_code = short_code).first()
-    except ValueError as e:
-        raise HTTPException(status_code=404,detail="Short Code Not Found")
+    table = db.query(ShortURL).filter_by(short_code = short_code).first()
+    if table is None:
+        raise HTTPException(status_code=404, detail="Stats not found")
+    
     
     return {
         "short_code" : table.short_code,
         "long_url" : table.long_url,
         "expires_at" : table.expires_at,
         "click_count" : table.click_count,
-        "owner_id" : table.owner_id
+        "owner_id" : table.owner_id,
+        "last_accessed": table.last_accessed
     }
 

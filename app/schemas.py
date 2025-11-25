@@ -1,7 +1,7 @@
 # SQLAlchemy models (DB tables)
 
 from sqlalchemy import Column, Integer, DateTime, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
@@ -12,3 +12,4 @@ class ShortURL(Base):
     expires_at = Column(DateTime, nullable=True)
     click_count = Column(Integer, default=0)
     owner_id = Column(String, nullable=True)
+    last_accessed = Column(DateTime, nullable=True)

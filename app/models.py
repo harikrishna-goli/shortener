@@ -14,6 +14,7 @@ class URLRequest(BaseModel):
 # Response model (output JSON for /shorten)
 class URLResponse(BaseModel):
     short_url: str
-    owner_id: str
+    short_code: str
+    owner_id: Optional[str] = None
     expires_at: Optional[datetime] = None
     message: str
