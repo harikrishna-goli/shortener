@@ -51,4 +51,5 @@ def create_short_url(
     )
     db.add(entry)
     db.commit()
+    db.refresh(entry)
     return short_code

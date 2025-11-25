@@ -54,10 +54,10 @@ def redirect(short_code: str, db: Session = Depends(get_db)):
 @app.get("/stats/{short_code}")
 def status_page(short_code: str, db: Session = Depends(get_db)):
 
-    try:
-        table = db.query(ShortURL).filter_by(short_code = short_code).first()
-    except ValueError as e:
-        raise HTTPException(status_code=404,detail="Short Code Not Found")
+    table = db.query(ShortURL).filter_by(short_code = short_code).first()
+    if table is None:
+        raise HTTPException(status_code=404, detail="Stats not found")
+    
     
     return {
         "short_code" : table.short_code,
