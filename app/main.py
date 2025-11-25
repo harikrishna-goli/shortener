@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.models import URLRequest, URLResponse
 from app.crud import get_long_url, create_short_url
 from app.database import SessionLocal
+from app.schemas import ShortURL
 
 
 
@@ -47,4 +48,21 @@ def redirect(short_code: str, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=404,detail=str(e))
     return RedirectResponse(url=long_url)
+
+
+@app.get("/stats/{short_code}")
+def status_page(short_code: str, db: Session = Depends(get_db)):
+
+    try:
+        table = db.query(ShortURL).filter_by(short_code = short_code).first()
+    except ValueError as e:
+        raise HTTPException(status_code=404,detail="Short Code Not Found")
+    
+    return {
+        "short_code" : table.short_code,
+        "long_url" : table.long_url,
+        "expires_at" : table.expires_at,
+        "click_count" : table.click_count,
+        "owner_id" : table.owner_id
+    }
 
