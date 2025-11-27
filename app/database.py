@@ -4,11 +4,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .schemas import Base
 
-DATABASE_URL = "sqlite:///./shortener.db"
+DATABASE_URL = "mysql+mysqlconnector://devuser:devpass@localhost:3306/mydb"
 
-engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
-)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create tables
