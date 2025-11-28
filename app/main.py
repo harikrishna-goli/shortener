@@ -2,14 +2,28 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.models import URLRequest, URLResponse
+from app.schemas import URLRequest, URLResponse
 from app.crud import get_long_url, create_short_url
 from app.database import get_db
-from app.schemas import ShortURL
-
-
+from app.models import ShortURL
+import time
+from sqlalchemy.exc import OperationalError
+from app.database import Base, engine
 
 app = FastAPI()
+
+@app.on_event("startup")
+def startup_event():
+    # Wait for DB to be ready
+    for _ in range(30):  # retry up to ~30 seconds
+        try:
+            conn = engine.connect()
+            conn.close()
+            break
+        except OperationalError:
+            time.sleep(1)
+    # Create tables once DB is reachable
+    Base.metadata.create_all(bind=engine)
 
 #POST to create an short name and return it
 @app.post("/shorten", response_model=URLResponse)

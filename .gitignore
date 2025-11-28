@@ -8,3 +8,7 @@
 
 #Environment Varibles
 .env
+.env.test
+
+# macOS system files
+.DS_Store

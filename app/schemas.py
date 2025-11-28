@@ -1,13 +1,17 @@
-# SQLAlchemy models (DB tables)
+#Pydantic request/response classes.
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
 
-from sqlalchemy import Column, String, Integer, DateTime
-from app.database import Base
+class URLRequest(BaseModel):
+    owner_id: Optional[str] = None
+    long_url: str
+    custom_alias: Optional[str] = None
+    expires_at: Optional[datetime] = None
 
-class ShortURL(Base):
-    __tablename__ = "short_urls"
-    short_code = Column(String(10), primary_key=True)
-    long_url = Column(String(2048), nullable=False)
-    expires_at = Column(DateTime, nullable=True)
-    click_count = Column(Integer, default=0, nullable=False)
-    owner_id = Column(String(64), nullable=True)
-    last_accessed = Column(DateTime, nullable=True)
+class URLResponse(BaseModel):
+    short_url: str
+    short_code: str
+    owner_id: Optional[str] = None
+    expires_at: Optional[datetime] = None
+    message: str

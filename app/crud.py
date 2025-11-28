@@ -1,7 +1,7 @@
 # DB operations (create, read, update)
 # CRUD (Create , Read, Update and Delete)
 from sqlalchemy.orm import Session
-from app.schemas import ShortURL
+from app.models import ShortURL
 from app.hashing import generate_code
 from datetime import datetime
 
