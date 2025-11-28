@@ -2,11 +2,31 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.models import URLRequest, URLResponse
+from app.schemas import URLRequest, URLResponse
 from app.crud import get_long_url, create_short_url
 from app.database import get_db
-from app.schemas import ShortURL
+from app.models import ShortURL
+import time
+from sqlalchemy.exc import OperationalError
+from app.database import Base, engine
 
+def wait_for_db(engine, timeout=30):
+    start = time.time()
+    while True:
+        try:
+            conn = engine.connect()
+            conn.close()
+            print("✅ Database is ready")
+            return
+        except OperationalError:
+            if time.time() - start > timeout:
+                raise
+            print("⏳ Waiting for database...")
+            time.sleep(1)
+
+# --- Place this BEFORE create_all ---
+wait_for_db(engine)
+Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI()

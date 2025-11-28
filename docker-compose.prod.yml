@@ -1,0 +1,32 @@
+
+services:
+  app:
+    build:
+      context: .                # build from repo root
+      dockerfile: Dockerfile    # same Dockerfile, but no dev mounts
+    ports:
+      - "8000:8000"             # expose FastAPI
+    environment:
+      - DATABASE_URL=mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql/${MYSQL_DATABASE}
+    depends_on:
+      - mysql
+    restart: always             # auto-restart if container crashes
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    # In production, you usually don’t expose DB port publicly
+    # If needed for admin access, uncomment:
+    # ports:
+    #   - "3306:3306"
+
+volumes:
+  mysql_data:

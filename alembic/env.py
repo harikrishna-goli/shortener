@@ -1,27 +1,32 @@
 from logging.config import fileConfig
-from sqlalchemy import create_engine, pool
+from sqlalchemy import engine_from_config, pool
 from alembic import context
+import os
 
-# Import your Base and DB URL
-from app.database import Base, DATABASE_URL
-# Import models so Alembic sees them
-import app.schemas  
+# Import your SQLAlchemy Base and models
+from app.models import Base  # <-- contains ShortURL and any other ORM tables
 
 # Alembic Config object
 config = context.config
 
+# Logging setup
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Point Alembic to your metadata
+# Get DB URL from environment or fallback to alembic.ini
+DATABASE_URL = os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
+
+# Override alembic.ini sqlalchemy.url dynamically
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
+
+# Target metadata for autogenerate
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = DATABASE_URL
     context.configure(
-        url=url,
+        url=DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -32,7 +37,11 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
-    connectable = create_engine(DATABASE_URL, poolclass=pool.NullPool)
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

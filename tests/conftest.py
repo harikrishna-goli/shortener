@@ -1,4 +1,4 @@
-# tests/conftest.py
+import os
 import time
 import pytest
 from fastapi.testclient import TestClient
@@ -6,21 +6,23 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
 
-from app.config import settings
-from app.database import Base, get_db  # get_db should live in app.database
-# Import the FastAPI instance from where it is defined
+from app.database import Base, get_db
 from app.main import app as fastapi_app
+import app.models  # noqa: F401  # ensure models are registered
 
-# Ensure all models are imported before create_all so metadata contains them
-import app.models  # noqa: F401
-
-TEST_DATABASE_URL = (
-    f"mysql+mysqlconnector://{settings.DB_USER}:{settings.DB_PASS}"
-    f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+# Read DB URL from environment (set in .env.test or docker-compose)
+TEST_DATABASE_URL = os.getenv(
+    "TEST_DATABASE_URL",
+    "mysql+pymysql://devuser:devpass@mysql:3306/mydb_test"
 )
 
-def wait_for_db(url, timeout=30):
-    engine = create_engine(url)
+# Global engine/session
+engine = create_engine(TEST_DATABASE_URL)
+TestingSessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+
+
+def wait_for_db(url: str, timeout: int = 30):
+    """Wait until DB is reachable before running tests."""
     start = time.time()
     while True:
         try:
@@ -32,13 +34,12 @@ def wait_for_db(url, timeout=30):
                 raise
             time.sleep(0.5)
 
-wait_for_db(TEST_DATABASE_URL, timeout=30)
 
-# Test engine/session
-engine = create_engine(TEST_DATABASE_URL)
-TestingSessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+# Wait for DB before tests start
+wait_for_db(TEST_DATABASE_URL)
 
-# Override the dependency on the FastAPI instance
+
+# Override FastAPI dependency
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -46,14 +47,19 @@ def override_get_db():
     finally:
         db.close()
 
+
 fastapi_app.dependency_overrides[get_db] = override_get_db
+
 
 @pytest.fixture(scope="session", autouse=True)
 def create_test_db():
+    """Create tables at test start, drop them at test end."""
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
 
+
 @pytest.fixture
 def client():
+    """Provide a test client with overridden DB."""
     return TestClient(fastapi_app)

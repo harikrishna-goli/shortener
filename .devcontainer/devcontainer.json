@@ -1,6 +1,6 @@
 {
-  "name": "MySQL Dev Container",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "mysql",
+  "name": "FastAPI + MySQL Dev Container",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
   "workspaceFolder": "/workspace"
 }
