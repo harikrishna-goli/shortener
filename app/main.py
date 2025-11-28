@@ -11,8 +11,6 @@ from app.schemas import ShortURL
 
 app = FastAPI()
 
-
-
 #POST to create an short name and return it
 @app.post("/shorten", response_model=URLResponse)
 def shorten_url(request: URLRequest, db: Session = Depends(get_db)):
