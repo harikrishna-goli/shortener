@@ -10,26 +10,20 @@ import time
 from sqlalchemy.exc import OperationalError
 from app.database import Base, engine
 
-def wait_for_db(engine, timeout=30):
-    start = time.time()
-    while True:
+app = FastAPI()
+
+@app.on_event("startup")
+def startup_event():
+    # Wait for DB to be ready
+    for _ in range(30):  # retry up to ~30 seconds
         try:
             conn = engine.connect()
             conn.close()
-            print("✅ Database is ready")
-            return
+            break
         except OperationalError:
-            if time.time() - start > timeout:
-                raise
-            print("⏳ Waiting for database...")
             time.sleep(1)
-
-# --- Place this BEFORE create_all ---
-wait_for_db(engine)
-Base.metadata.create_all(bind=engine)
-
-
-app = FastAPI()
+    # Create tables once DB is reachable
+    Base.metadata.create_all(bind=engine)
 
 #POST to create an short name and return it
 @app.post("/shorten", response_model=URLResponse)
