@@ -8,3 +8,4 @@ pytest
 httpx #For Test Environemnt
 alembic. #Help in Schema Migration of the DB
 mysql-connector-python
+python-dotenv

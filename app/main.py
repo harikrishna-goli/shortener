@@ -4,20 +4,13 @@ from sqlalchemy.orm import Session
 
 from app.models import URLRequest, URLResponse
 from app.crud import get_long_url, create_short_url
-from app.database import SessionLocal
+from app.database import get_db
 from app.schemas import ShortURL
 
 
 
 app = FastAPI()
 
-#Dependency for DB Session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 #POST to create an short name and return it

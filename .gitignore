@@ -1,0 +1,10 @@
+# Ignore Python cache
+./*/__pycache__/
+*.pyc
+*.pyo
+
+# pytest cache
+.pytest_cache/
+
+#Environment Varibles
+.env
