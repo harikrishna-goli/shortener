@@ -1,15 +1,13 @@
 # SQLAlchemy models (DB tables)
 
-from sqlalchemy import Column, Integer, DateTime, String
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
+from sqlalchemy import Column, String, Integer, DateTime
+from app.database import Base
 
 class ShortURL(Base):
-    __tablename__="short_urls"
-    short_code = Column(String,primary_key=True, index=True)
-    long_url = Column(String, nullable=False)
+    __tablename__ = "short_urls"
+    short_code = Column(String(10), primary_key=True)
+    long_url = Column(String(2048), nullable=False)
     expires_at = Column(DateTime, nullable=True)
-    click_count = Column(Integer, default=0)
-    owner_id = Column(String, nullable=True)
+    click_count = Column(Integer, default=0, nullable=False)
+    owner_id = Column(String(64), nullable=True)
     last_accessed = Column(DateTime, nullable=True)
