@@ -5,3 +5,6 @@
 
 # pytest cache
 .pytest_cache/
+
+#Environment Varibles
+.env
