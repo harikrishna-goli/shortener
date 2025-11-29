@@ -1,7 +1,3 @@
-Perfect, Hari — now that I’ve got the **full repo structure** and all the supporting files, I can craft a polished, interview‑ready README for your project. This README will highlight your engineering depth, reproducibility, and professional workflow.
-
----
-
 # 📘 URL Shortener API
 
 ## 📖 Overview
@@ -151,20 +147,3 @@ Features:
 - `db_SQLite_mysqlinit.py` → Migrate data from SQLite → MySQL
 
 ---
-
-## 🤝 Contributing
-1. Fork the repo
-2. Create a feature branch
-3. Add tests for new features
-4. Submit a PR
-
----
-
-## 📜 License
-MIT License
-
----
-
-✨ This README is structured to impress in interviews: it shows **clarity, reproducibility, testing discipline, and containerization**.  
-
-Would you like me to also add **badges** (build status, Docker pulls, test coverage) at the top so it looks even more polished for GitHub presentation?
