@@ -6,9 +6,9 @@
 # pytest cache
 .pytest_cache/
 
-#Environment Varibles
-.env
-.env.test
+#Environment Varibles enabling files for local development
+#.env
+#.env.test
 
 # macOS system files
 .DS_Store

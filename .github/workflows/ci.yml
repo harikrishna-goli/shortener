@@ -17,23 +17,23 @@ jobs:
 
       - name: Build and start services
         run: |
-          docker-compose -f docker-compose.yml up -d --build
+          docker compose -f docker-compose.yml up -d --build
 
       - name: Wait for DB to be ready
         run: |
           for i in {1..10}; do
-            docker-compose exec -T db mysqladmin ping -h localhost -uroot -proot && break
+            docker compose exec -T db mysqladmin ping -h localhost -uroot -proot && break
             sleep 5
           done
 
       - name: Run migrations
         run: |
-          docker-compose exec -T app alembic upgrade head
+          docker compose exec -T app alembic upgrade head
 
       - name: Run tests
         run: |
-          docker-compose exec -T app pytest --cov=app --cov-report=xml
+          docker compose exec -T app pytest --cov=app --cov-report=xml
 
       - name: Stop services
         if: always()
-        run: docker-compose down
+        run: docker compose down
