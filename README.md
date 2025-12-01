@@ -147,3 +147,43 @@ Features:
 - `db_SQLite_mysqlinit.py` → Migrate data from SQLite → MySQL
 
 ---
+
+## ⚙️ Continuous Integration (CI/CD)
+
+This project uses **GitHub Actions** to automatically validate code quality and run the full test suite on every Pull Request. The pipeline ensures that all contributions meet production-grade standards before merging.
+
+### 🔄 Workflow Overview
+- **Trigger**: Runs on every `pull_request` targeting `main` or `develop`.
+- **Steps**:
+  1. **Checkout** the repository.
+  2. **Build & start services** using `docker-compose` (app + MySQL).
+  3. **Run Alembic migrations** inside the app container to ensure schema consistency.
+  4. **Execute pytest suite** inside the container with coverage reporting.
+  5. **Tear down containers** after completion.
+
+### ✅ Quality Gates
+- **Linting**: Code style enforced with `flake8`.
+- **Type Checking**: Static validation with `mypy`.
+- **Tests**: All unit and integration tests must pass.
+- **Coverage**: Reports are generated and uploaded as workflow artifacts.
+
+### 🔐 Secrets Management
+- Database credentials and environment variables are stored securely in **GitHub Secrets**.
+- These values are injected into `docker-compose.yml` at runtime.
+- No sensitive data is committed to the repository.
+
+### 📊 Status Badge
+You can add a badge to the top of your README to show build status:
+
+```markdown
+![CI](https://github.com/harikrishna-goli/shortener/actions/workflows/ci.yml/badge.svg)
+```
+
+This badge will display **Passing/Failing** depending on the latest PR workflow run.
+
+### 🚀 Future Enhancements
+- Push Docker images to DockerHub/GHCR on successful builds.
+- Add branch protection rules to require CI checks before merging.
+- Extend workflows with performance benchmarks and deployment steps.
+
+---

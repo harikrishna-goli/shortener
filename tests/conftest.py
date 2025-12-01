@@ -1,19 +1,19 @@
 import os
 import time
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import sessionmaker
 
+import app.models  # noqa: F401  # ensure models are registered
 from app.database import Base, get_db
 from app.main import app as fastapi_app
-import app.models  # noqa: F401  # ensure models are registered
 
 # Read DB URL from environment (set in .env.test or docker-compose)
 TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "mysql+pymysql://devuser:devpass@mysql:3306/mydb_test"
+    "TEST_DATABASE_URL", "mysql+pymysql://devuser:devpass@mysql:3306/mydb_test"
 )
 
 # Global engine/session
