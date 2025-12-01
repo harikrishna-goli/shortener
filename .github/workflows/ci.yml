@@ -1,4 +1,4 @@
-name: CI Pipeline (PR Tests)
+name: CI Pipeline (PR Validation)
 
 on:
   pull_request:
@@ -9,16 +9,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # Step 2: Set up Docker
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
+      # Step 3: Build and start services
       - name: Build and start services
         run: |
           docker compose -f docker-compose.yml up -d --build
 
+      # Step 4: Wait for DB to be ready
       - name: Wait for DB to be ready
         run: |
           for i in {1..10}; do
@@ -26,14 +30,31 @@ jobs:
             sleep 5
           done
 
+      # Step 5: Run linting & type checks (outside container for speed)
+      - name: Lint & Type Check
+        run: |
+          pip install flake8 mypy
+          flake8 .
+          mypy .
+
+      # Step 6: Run migrations inside app container
       - name: Run migrations
         run: |
           docker compose exec -T app alembic upgrade head
 
+      # Step 7: Run tests with coverage inside app container
       - name: Run tests
         run: |
           docker compose exec -T app pytest --cov=app --cov-report=xml
 
+      # Step 8: Upload coverage report
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+      # Step 9: Stop services
       - name: Stop services
         if: always()
         run: docker compose down
