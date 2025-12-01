@@ -30,26 +30,26 @@ jobs:
             sleep 5
           done
 
-      # Step 5: Run linting & type checks (outside container for speed)
+      # Step 5: Lint & Type Check
       - name: Lint & Type Check
         run: |
           pip install flake8 mypy
           flake8 .
           mypy .
 
-      # Step 6: Run migrations inside app container
+      # Step 6: Run migrations
       - name: Run migrations
         run: |
           docker compose exec -T app alembic upgrade head
 
-      # Step 7: Run tests with coverage inside app container
+      # Step 7: Run tests with coverage
       - name: Run tests
         run: |
           docker compose exec -T app pytest --cov=app --cov-report=xml
 
-      # Step 8: Upload coverage report
+      # Step 8: Upload coverage report (new v4)
       - name: Upload coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: coverage.xml
