@@ -2,17 +2,18 @@ import mysql.connector
 
 # Connect to MySQL running in Docker
 conn = mysql.connector.connect(
-    host="localhost",   # maps to container port
+    host="localhost",  # maps to container port
     port=3306,
     user="devuser",
     password="devpass",
-    database="mydb"
+    database="mydb",
 )
 
 cursor = conn.cursor()
 
 # Example: create a table
-cursor.execute("""
+cursor.execute(
+    """
 CREATE TABLE IF NOT EXISTS short_urls (
     id INT AUTO_INCREMENT PRIMARY KEY,
     short_code VARCHAR(50) UNIQUE NOT NULL,
@@ -22,7 +23,8 @@ CREATE TABLE IF NOT EXISTS short_urls (
     owner_id VARCHAR(255),
     last_accessed DATETIME
 )
-""")
+"""
+)
 
 
 conn.commit()

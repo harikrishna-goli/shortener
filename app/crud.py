@@ -1,10 +1,11 @@
 # DB operations (create, read, update)
 # CRUD (Create , Read, Update and Delete)
-from sqlalchemy.orm import Session
-from app.models import ShortURL
-from app.hashing import generate_code
 from datetime import datetime
 
+from sqlalchemy.orm import Session
+
+from app.hashing import generate_code
+from app.models import ShortURL
 
 
 def get_long_url(db: Session, short_code: str) -> str:
@@ -16,15 +17,13 @@ def get_long_url(db: Session, short_code: str) -> str:
     db.commit()
     return entry.long_url
 
-    
-    
 
 def create_short_url(
     db: Session,
     long_url: str,
     custom_alias: str | None = None,
     expires_at: str | None = None,
-    owner_id: str | None = None
+    owner_id: str | None = None,
 ) -> str:
     try_count = 100
 
@@ -47,7 +46,7 @@ def create_short_url(
         long_url=long_url,
         expires_at=expires_at,
         click_count=0,
-        owner_id=owner_id
+        owner_id=owner_id,
     )
     db.add(entry)
     db.commit()

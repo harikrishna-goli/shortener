@@ -1,7 +1,9 @@
-#SQLAlchemy ORM classes (tables)
+# SQLAlchemy ORM classes (tables)
 
-from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy import Column, DateTime, Integer, String
+
 from app.database import Base
+
 
 class ShortURL(Base):
     __tablename__ = "short_urls"

@@ -1,8 +1,10 @@
 import os
 import sys
+
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class Settings:
     DB_USER = os.getenv("DB_USER")
@@ -18,5 +20,6 @@ class Settings:
 
     APP_HOST = os.getenv("APP_HOST", "0.0.0.0")
     APP_PORT = os.getenv("APP_PORT", "8000")
+
 
 settings = Settings()

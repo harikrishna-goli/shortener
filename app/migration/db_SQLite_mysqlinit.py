@@ -1,28 +1,30 @@
 import sqlite3
-import mysql.connector
 from datetime import datetime
 
+import mysql.connector
+
 # --- Step 1: Connect to SQLite ---
-sqlite_conn = sqlite3.connect("shortener.db")  # adjust path if needed according the place you running from
+sqlite_conn = sqlite3.connect(
+    "shortener.db"
+)  # adjust path if needed according the place you running from
 sqlite_cursor = sqlite_conn.cursor()
 
 # Read all rows from SQLite table
-sqlite_cursor.execute("SELECT short_code, long_url, expires_at, click_count, owner_id, last_accessed FROM short_urls")
+sqlite_cursor.execute(
+    "SELECT short_code, long_url, expires_at, click_count, owner_id, last_accessed FROM short_urls"
+)
 rows = sqlite_cursor.fetchall()
 print(f"Fetched {len(rows)} rows from SQLite.")
 
 # --- Step 2: Connect to MySQL ---
 mysql_conn = mysql.connector.connect(
-    host="localhost",
-    port=3306,
-    user="devuser",
-    password="devpass",
-    database="mydb"
+    host="localhost", port=3306, user="devuser", password="devpass", database="mydb"
 )
 mysql_cursor = mysql_conn.cursor()
 
 # --- Step 3: Create MySQL table if not exists ---
-mysql_cursor.execute("""
+mysql_cursor.execute(
+    """
 CREATE TABLE IF NOT EXISTS short_urls (
     id INT AUTO_INCREMENT PRIMARY KEY,
     short_code VARCHAR(50) UNIQUE NOT NULL,
@@ -32,7 +34,8 @@ CREATE TABLE IF NOT EXISTS short_urls (
     owner_id VARCHAR(255),
     last_accessed DATETIME
 )
-""")
+"""
+)
 
 # --- Step 4: Insert rows into MySQL ---
 for row in rows:
@@ -47,17 +50,20 @@ for row in rows:
                 return None
         return dt
 
-    mysql_cursor.execute("""
+    mysql_cursor.execute(
+        """
         INSERT INTO short_urls (short_code, long_url, expires_at, click_count, owner_id, last_accessed)
         VALUES (%s, %s, %s, %s, %s, %s)
-    """, (
-        short_code,
-        long_url,
-        parse_datetime(expires_at),
-        click_count,
-        owner_id,
-        parse_datetime(last_accessed)
-    ))
+    """,
+        (
+            short_code,
+            long_url,
+            parse_datetime(expires_at),
+            click_count,
+            owner_id,
+            parse_datetime(last_accessed),
+        ),
+    )
 
 mysql_conn.commit()
 print(f"Inserted {len(rows)} rows into MySQL.")
