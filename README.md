@@ -1,49 +1,40 @@
-# 📘 URL Shortener API
+---
+
+# 📚 URL Shortener API
+
+[![CI](https://github.com/harikrishna-goli/shortener/actions/workflows/ci.yml/badge.svg)](https://github.com/harikrishna-goli/shortener/actions/workflows/ci.yml)
 
 ## 📖 Overview
 A production‑grade **FastAPI** service for shortening URLs with support for:
-- Custom aliases
-- Expiration dates
-- Click tracking & stats
-- Owner attribution
+- Custom aliases  
+- Expiration dates  
+- Click tracking & stats  
+- Owner attribution  
 
-The project is fully containerized with **Docker Compose**, uses **MySQL** as the primary database, and includes **Alembic migrations** for schema management. It also provides **SQLite → MySQL migration scripts** for portability. Automated tests are implemented with **pytest** and isolated test databases.
+The project is fully containerized with **Docker Compose**, uses **MySQL** as the primary database, and includes **Alembic migrations** for schema management. Automated tests are implemented with **pytest** and isolated test databases.
 
 ---
 
 ## 🏗 Tech Stack
-- **Backend:** FastAPI, SQLAlchemy, Pydantic
-- **Database:** MySQL (with SQLite migration support)
-- **Migrations:** Alembic
-- **Containerization:** Docker, Devcontainers
-- **Testing:** Pytest, FastAPI TestClient
-- **Other:** dotenv for config, Redis (future caching)
+- **Backend:** FastAPI, SQLAlchemy, Pydantic  
+- **Database:** MySQL  
+- **Migrations:** Alembic  
+- **Containerization:** Docker Compose  
+- **Testing:** Pytest  
 
 ---
 
 ## 📂 Project Structure
 ```
 .
-├── app/                 # Core application
-│   ├── main.py           # FastAPI entrypoint
-│   ├── models.py         # SQLAlchemy ORM models
-│   ├── crud.py           # CRUD operations
-│   ├── database.py       # DB session + engine
-│   ├── schemas.py        # Pydantic request/response models
-│   ├── config.py         # Centralized settings
-│   └── migration/        # DB init + migration scripts
-├── tests/                # Pytest test suite
-│   ├── conftest.py       # Test DB setup + overrides
-│   └── test_main.py      # Endpoint tests
-├── alembic/              # Alembic migrations
-├── docker-compose.yml    # Multi‑service setup (app + MySQL)
-├── Dockerfile            # App container
-├── init.sql              # MySQL init script
-├── requirements.txt      # Python dependencies
-├── .env                  # Environment variables
-├── .env.test             # Test DB environment
-├── pytest.ini            # Pytest config
-└── alembic.ini           # Alembic config
+├── app/                # Core application
+├── tests/              # Pytest suite
+├── alembic/            # Alembic migrations
+├── docker-compose.yml  # Multi‑service setup (app + MySQL)
+├── Dockerfile          # App container
+├── requirements.txt    # Python dependencies
+├── .env.example        # Example environment variables
+└── pytest.ini          # Pytest config
 ```
 
 ---
@@ -52,39 +43,19 @@ The project is fully containerized with **Docker Compose**, uses **MySQL** as th
 
 ### 1. Clone the repo
 ```bash
-git clone <repo-url>
-cd url-shortener
+git clone https://github.com/harikrishna-goli/shortener.git
+cd shortener
 ```
 
 ### 2. Setup environment
-Copy `.env` and adjust values if needed:
+Copy `.env.example` and adjust values if needed:
 ```bash
 cp .env.example .env
 ```
 
 ### 3. Run with Docker Compose
 ```bash
-docker-compose up --build
-```
-
-This will start:
-- `app` → FastAPI service on port `8000`
-- `mysql` → MySQL DB with `mydb` and `mydb_test`
-
----
-
-## 🔧 Configuration
-Environment variables are managed via `.env`:
-
-```
-DB_USER=devuser
-DB_PASS=devpass
-DB_HOST=mysql
-DB_PORT=3306
-DB_NAME=mydb
-TEST_DB_NAME=mydb_test
-APP_HOST=0.0.0.0
-APP_PORT=8000
+docker compose up --build
 ```
 
 ---
@@ -96,17 +67,6 @@ APP_PORT=8000
 curl -X POST http://127.0.0.1:8000/shorten \
   -H "Content-Type: application/json" \
   -d '{"long_url": "https://example.com"}'
-```
-
-Response:
-```json
-{
-  "short_url": "http://127.0.0.1:8000/abc123",
-  "short_code": "abc123",
-  "expires_at": null,
-  "owner_id": null,
-  "message": "Short URL created successfully"
-}
 ```
 
 ### Redirect
@@ -124,66 +84,32 @@ curl http://127.0.0.1:8000/stats/abc123
 ## 🧪 Testing
 Run tests inside the container:
 ```bash
-docker-compose run app pytest
+docker compose run app pytest
 ```
 
 Features:
-- Isolated test DB (`mydb_test`)
-- Automatic DB setup/teardown
-- End‑to‑end flow tests for shorten → redirect → stats
+- Isolated test DB (`mydb_test`)  
+- Automatic DB setup/teardown  
+- End‑to‑end flow tests for shorten → redirect → stats  
 
 ---
 
-## 📦 Deployment
-- **Dockerfile** builds a lightweight Python 3.11 image
-- **docker-compose.yml** orchestrates app + MySQL
-- **Devcontainer** support for VS Code remote development
-- Alembic migrations ensure schema consistency
+## 🔄 Continuous Integration (CI/CD)
+This project uses **GitHub Actions** to validate every Pull Request.
 
----
+### Workflow Overview
+- **Trigger:** Runs on every `pull_request` targeting any branch.  
+- **Steps:**
+  1. Checkout repository  
+  2. Build & start services with Docker Compose  
+  3. Run Alembic migrations inside the app container  
+  4. Execute pytest suite with coverage reporting  
+  5. Upload coverage report as artifact  
+  6. Tear down containers  
 
-## 🔄 Migration
-- `db_init.py` → Initialize schema in MySQL
-- `db_SQLite_mysqlinit.py` → Migrate data from SQLite → MySQL
-
----
-
-## ⚙️ Continuous Integration (CI/CD)
-
-This project uses **GitHub Actions** to automatically validate code quality and run the full test suite on every Pull Request. The pipeline ensures that all contributions meet production-grade standards before merging.
-
-### 🔄 Workflow Overview
-- **Trigger**: Runs on every `pull_request` targeting `main` or `develop`.
-- **Steps**:
-  1. **Checkout** the repository.
-  2. **Build & start services** using `docker-compose` (app + MySQL).
-  3. **Run Alembic migrations** inside the app container to ensure schema consistency.
-  4. **Execute pytest suite** inside the container with coverage reporting.
-  5. **Tear down containers** after completion.
-
-### ✅ Quality Gates
-- **Linting**: Code style enforced with `flake8`.
-- **Type Checking**: Static validation with `mypy`.
-- **Tests**: All unit and integration tests must pass.
-- **Coverage**: Reports are generated and uploaded as workflow artifacts.
-
-### 🔐 Secrets Management
-- Database credentials and environment variables are stored securely in **GitHub Secrets**.
-- These values are injected into `docker-compose.yml` at runtime.
-- No sensitive data is committed to the repository.
-
-### 📊 Status Badge
-You can add a badge to the top of your README to show build status:
-
-```markdown
-![CI](https://github.com/harikrishna-goli/shortener/actions/workflows/ci.yml/badge.svg)
-```
-
-This badge will display **Passing/Failing** depending on the latest PR workflow run.
-
-### 🚀 Future Enhancements
-- Push Docker images to DockerHub/GHCR on successful builds.
-- Add branch protection rules to require CI checks before merging.
-- Extend workflows with performance benchmarks and deployment steps.
+### Quality Gates
+- ✅ Migrations must succeed  
+- ✅ Tests must pass  
+- ✅ Coverage report generated  
 
 ---
