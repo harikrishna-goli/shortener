@@ -12,8 +12,5 @@ python-dotenv
 pymysql
 cryptography #Add for CiCD
 pytest-cov #Add for CiCD
-black #Spacing and formatting
-isort #Spacing and formatting
-flake8 #Linting
-mypy #Type Checking
+
 

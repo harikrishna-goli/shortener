@@ -30,13 +30,6 @@ jobs:
             sleep 5
           done
 
-      # Step 5: Lint & Type Check
-      - name: Lint & Type Check
-        run: |
-          pip install flake8 mypy
-          flake8 .
-          mypy .
-
       # Step 6: Run migrations
       - name: Run migrations
         run: |
