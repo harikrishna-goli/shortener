@@ -1,0 +1,39 @@
+name: CI Pipeline (PR Tests)
+
+on:
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and start services
+        run: |
+          docker-compose -f docker-compose.yml up -d --build
+
+      - name: Wait for DB to be ready
+        run: |
+          for i in {1..10}; do
+            docker-compose exec -T db mysqladmin ping -h localhost -uroot -proot && break
+            sleep 5
+          done
+
+      - name: Run migrations
+        run: |
+          docker-compose exec -T app alembic upgrade head
+
+      - name: Run tests
+        run: |
+          docker-compose exec -T app pytest --cov=app --cov-report=xml
+
+      - name: Stop services
+        if: always()
+        run: docker-compose down
